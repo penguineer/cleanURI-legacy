@@ -5,6 +5,12 @@ import java.net.URI;
 import com.penguineering.cleanuri.Site;
 import com.penguineering.cleanuri.Verbosity;
 
+/**
+ * Site implementation for reichelt.de.
+ * 
+ * @author Tux (tux@netz39.de)
+ * 
+ */
 public class ReicheltSite implements Site {
 	public static ReicheltSite getInstance() {
 		return new ReicheltSite();
