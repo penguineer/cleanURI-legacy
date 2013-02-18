@@ -2,15 +2,16 @@ package com.penguineering.cleanuri.sites.reichelt;
 
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-
 import net.jcip.annotations.ThreadSafe;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 
 @ThreadSafe
 public class ReicheltMetaRetrievalWorker implements Callable<Properties> {
@@ -55,16 +56,15 @@ public class ReicheltMetaRetrievalWorker implements Callable<Properties> {
 
 				// Doppelpunkte
 				int col_idx = line.indexOf("<span> :: <span");
-				final String art_id = line.substring(8, col_idx).trim();
-				meta.setProperty(PAR_ARTID,
-						StringEscapeUtils.unescapeHtml4(art_id));
+				final String art_id = StringEscapeUtils.unescapeHtml4(
+						line.substring(8, col_idx)).trim();
+				meta.setProperty(PAR_ARTID, toUTF8(art_id));
 
 				int span_idx = line.indexOf("</span>");
-				final String art_name = line.substring(col_idx + 32, span_idx)
-						.trim();
-				meta.setProperty(PAR_DESCRIPTION,
-						StringEscapeUtils.unescapeHtml4(art_name));
-				
+				final String art_name = StringEscapeUtils.unescapeHtml4(
+						line.substring(col_idx + 32, span_idx)).trim();
+				meta.setProperty(PAR_DESCRIPTION, toUTF8(art_name));
+
 				break;
 			}
 		} finally {
@@ -72,5 +72,10 @@ public class ReicheltMetaRetrievalWorker implements Callable<Properties> {
 				reader.close();
 		}
 		return meta;
+	}
+
+	private String toUTF8(String iso) throws UnsupportedEncodingException {
+		byte[] b = iso.getBytes("ISO-8859-15");
+		return new String(b, "ISO-8859-15");
 	}
 }

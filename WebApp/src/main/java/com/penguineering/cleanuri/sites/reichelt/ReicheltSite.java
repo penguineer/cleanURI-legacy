@@ -82,7 +82,7 @@ public class ReicheltSite implements Site {
 		result.append(href.toASCIIString());
 		result.append("|");
 		result.append(meta.get(ReicheltMetaRetrievalWorker.PAR_ARTID));
-		result.append("]] -- ");
+		result.append("]] – ");
 		result.append(meta.get(ReicheltMetaRetrievalWorker.PAR_DESCRIPTION));
 
 		return result.toString();

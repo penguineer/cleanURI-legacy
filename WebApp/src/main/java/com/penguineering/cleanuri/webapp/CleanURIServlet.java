@@ -31,6 +31,8 @@ public class CleanURIServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/plain; charset=UTF-8");
+
 		// get the request URI
 		final URI uri;
 		try {
@@ -69,7 +71,7 @@ public class CleanURIServlet extends HttpServlet {
 	private Site getSite(URI uri) {
 		if (uri == null)
 			throw new NullPointerException("URI argument must not be null!");
-		
+
 		for (Site site : sites)
 			if (site.isMatch(uri))
 				return site;

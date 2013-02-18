@@ -9,7 +9,7 @@ public class ReicheltSiteTestFrame {
 
 	public static void main(String args[]) {
 		final URI uri = URI
-				.create("http://www.reichelt.de/Programmer-Entwicklungstools/AT-AVR-ISP/3/index.html?;ACTION=3;LA=2;ARTICLE=45040;GROUPID=2969;artnr=AT+AVR+ISP;SID=11T2EP9H8AAAIAAFZX9wo00382e81eab2abba2001cc172384a41b");
+				.create("http://www.reichelt.de/index.html?ARTICLE=73207");
 
 		final Site site = ReicheltSite.getInstance();
 
