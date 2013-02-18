@@ -13,7 +13,6 @@ public class ReicheltSiteTestFrame {
 
 		final Site site = ReicheltSite.getInstance();
 
-		System.out.println(site.transform(uri, Verbosity.MINIMAL, "URI",
-				"plain"));
+		System.out.println(site.transform(uri, Verbosity.MINIMAL, "URI"));
 	}
 }

@@ -40,7 +40,7 @@ public class ReicheltSite implements Site {
 	}
 
 	@Override
-	public String transform(URI uri, Verbosity v, String target, String format) {
+	public String transform(URI uri, Verbosity v, String target) {
 		if (!isMatch(uri))
 			throw new IllegalArgumentException("URI does not match this site!");
 

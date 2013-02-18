@@ -54,9 +54,6 @@ public class CleanURIServlet extends HttpServlet {
 		// get the target platform
 		final String target = retrieveTargetParameter(request);
 
-		// TODO get the output format
-		final String format = "plain";
-
 		// retrieve the matching site
 		final Site site = getSite(uri);
 
@@ -66,7 +63,7 @@ public class CleanURIServlet extends HttpServlet {
 			return;
 		}
 
-		response.getWriter().println(site.transform(uri, v, target, format));
+		response.getWriter().println(site.transform(uri, v, target));
 	}
 
 	private Site getSite(URI uri) {

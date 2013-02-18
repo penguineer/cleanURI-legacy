@@ -48,5 +48,5 @@ public interface Site {
 	 *            The output format.
 	 * @return The transformation result.
 	 */
-	public String transform(URI uri, Verbosity v, String target, String format);
+	public String transform(URI uri, Verbosity v, String target);
 }
