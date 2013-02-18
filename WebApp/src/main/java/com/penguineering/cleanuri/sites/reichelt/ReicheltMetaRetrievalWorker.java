@@ -8,6 +8,8 @@ import java.net.URLConnection;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import net.jcip.annotations.ThreadSafe;
 
 @ThreadSafe
@@ -39,7 +41,6 @@ public class ReicheltMetaRetrievalWorker implements Callable<Properties> {
 		final Properties meta = new Properties();
 
 		final URL url = uri.toURL();
-		System.out.println(url.toString());
 		final URLConnection con = url.openConnection();
 
 		LineNumberReader reader = null;
@@ -55,13 +56,17 @@ public class ReicheltMetaRetrievalWorker implements Callable<Properties> {
 				// Doppelpunkte
 				int col_idx = line.indexOf("<span> :: <span");
 				final String art_id = line.substring(8, col_idx).trim();
-				meta.setProperty(PAR_ARTID, art_id);
+				meta.setProperty(PAR_ARTID,
+						StringEscapeUtils.unescapeHtml4(art_id));
 
 				int span_idx = line.indexOf("</span>");
-				final String art_name = line.substring(col_idx + 32, span_idx).trim();
-				meta.setProperty(PAR_DESCRIPTION, art_name);				
+				final String art_name = line.substring(col_idx + 32, span_idx)
+						.trim();
+				meta.setProperty(PAR_DESCRIPTION,
+						StringEscapeUtils.unescapeHtml4(art_name));
+				
+				break;
 			}
-
 		} finally {
 			if (reader != null)
 				reader.close();
