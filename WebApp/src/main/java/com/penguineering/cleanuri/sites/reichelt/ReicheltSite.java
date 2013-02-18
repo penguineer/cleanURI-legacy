@@ -1,6 +1,8 @@
 package com.penguineering.cleanuri.sites.reichelt;
 
 import java.net.URI;
+import java.util.Properties;
+import java.util.concurrent.Callable;
 
 import com.penguineering.cleanuri.Site;
 import com.penguineering.cleanuri.Verbosity;
@@ -46,9 +48,30 @@ public class ReicheltSite implements Site {
 
 		final String ART_id = getArticleID(uri);
 
-		return URI.create(
-				"https://www.reichelt.de/index.html?ARTICLE=" + ART_id)
-				.toASCIIString();
+		final URI href = URI
+				.create("http://www.reichelt.de/index.html?ARTICLE=" + ART_id);
+
+		StringBuilder result = new StringBuilder();
+		if (v == Verbosity.DECORATED) {
+			Callable<Properties> c = ReicheltMetaRetrievalWorker.forURI(href);
+			try {
+				Properties props = c.call();
+
+				result.append("[[");
+				result.append(href.toASCIIString());
+				result.append("|");
+				result.append(props.get(ReicheltMetaRetrievalWorker.PAR_ARTID));
+				result.append("]] -- ");
+				result.append(props
+						.get(ReicheltMetaRetrievalWorker.PAR_DESCRIPTION));
+
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		} else
+			result.append(href);
+
+		return result.toString();
 	}
 
 	private String getArticleID(URI uri) {
