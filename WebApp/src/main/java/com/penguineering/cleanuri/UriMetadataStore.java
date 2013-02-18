@@ -20,7 +20,7 @@ public enum UriMetadataStore {
 
 	public Properties getUriProperties(URI rec) {
 		final Properties props = uriProps.get(rec);
-		return (Properties) props.clone();
+		return props == null ? null : (Properties) props.clone();
 	}
 
 	public void addUriProperties(URI rec, Properties props) {

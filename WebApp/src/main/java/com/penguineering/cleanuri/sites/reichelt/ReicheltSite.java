@@ -5,6 +5,7 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.penguineering.cleanuri.Site;
+import com.penguineering.cleanuri.UriMetadataStore;
 import com.penguineering.cleanuri.Verbosity;
 
 /**
@@ -53,18 +54,18 @@ public class ReicheltSite implements Site {
 
 		StringBuilder result = new StringBuilder();
 		if (v == Verbosity.DECORATED) {
-			Callable<Properties> c = ReicheltMetaRetrievalWorker.forURI(href);
 			try {
-				Properties props = c.call();
+				Properties meta = UriMetadataStore.INSTANCE
+						.getUriProperties(href);
 
-				result.append("[[");
-				result.append(href.toASCIIString());
-				result.append("|");
-				result.append(props.get(ReicheltMetaRetrievalWorker.PAR_ARTID));
-				result.append("]] -- ");
-				result.append(props
-						.get(ReicheltMetaRetrievalWorker.PAR_DESCRIPTION));
+				if (meta == null) {
+					Callable<Properties> c = ReicheltMetaRetrievalWorker
+							.forURI(href);
+					meta = c.call();
+					UriMetadataStore.INSTANCE.addUriProperties(href, meta);
+				}
 
+				result.append(createDokuwikiString(href, meta));
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -74,12 +75,27 @@ public class ReicheltSite implements Site {
 		return result.toString();
 	}
 
+	private String createDokuwikiString(URI href, Properties meta) {
+		StringBuilder result = new StringBuilder();
+
+		result.append("[[");
+		result.append(href.toASCIIString());
+		result.append("|");
+		result.append(meta.get(ReicheltMetaRetrievalWorker.PAR_ARTID));
+		result.append("]] -- ");
+		result.append(meta.get(ReicheltMetaRetrievalWorker.PAR_DESCRIPTION));
+
+		return result.toString();
+	}
+
 	private String getArticleID(URI uri) {
 		String query = uri.getQuery();
 
 		// extract the ARTICLE from the query
-		int ART_idx = query.indexOf("ARTICLE=");
+		final int ART_idx = query.indexOf("ARTICLE=");
 		int COL_idx = query.indexOf(";", ART_idx);
+		if (COL_idx == -1)
+			COL_idx = query.length();
 
 		return query.substring(ART_idx + 8, COL_idx);
 
