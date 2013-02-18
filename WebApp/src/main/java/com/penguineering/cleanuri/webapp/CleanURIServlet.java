@@ -3,6 +3,8 @@ package com.penguineering.cleanuri.webapp;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,6 +20,13 @@ import com.penguineering.cleanuri.sites.reichelt.ReicheltSite;
 @ThreadSafe
 public class CleanURIServlet extends HttpServlet {
 	private static final long serialVersionUID = 8983389610237056848L;
+
+	static final Set<Site> sites;
+
+	static {
+		sites = new HashSet<Site>();
+		sites.add(ReicheltSite.getInstance());
+	}
 
 	@Override
 	protected void doGet(HttpServletRequest request,
@@ -48,10 +57,27 @@ public class CleanURIServlet extends HttpServlet {
 		// TODO get the output format
 		final String format = "plain";
 
-		// TODO retrieve the matching site
-		Site site = ReicheltSite.getInstance();
+		// retrieve the matching site
+		final Site site = getSite(uri);
+
+		if (site == null) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND,
+					"No site matching the URI could be found!");
+			return;
+		}
 
 		response.getWriter().println(site.transform(uri, v, target, format));
+	}
+
+	private Site getSite(URI uri) {
+		if (uri == null)
+			throw new NullPointerException("URI argument must not be null!");
+		
+		for (Site site : sites)
+			if (site.isMatch(uri))
+				return site;
+
+		return null;
 	}
 
 	/**
