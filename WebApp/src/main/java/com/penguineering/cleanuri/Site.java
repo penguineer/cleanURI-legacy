@@ -1,6 +1,7 @@
 package com.penguineering.cleanuri;
 
-import java.net.URI;
+import com.penguineering.cleanuri.api.Canonizer;
+import com.penguineering.cleanuri.api.Extractor;
 
 /**
  * Interface for site-based URI processing.
@@ -23,30 +24,7 @@ public interface Site {
 	 */
 	public String getLabel();
 
-	/**
-	 * Check if the URI matches this site.
-	 * 
-	 * @param src
-	 *            The URI to match.
-	 * @return true, if the URI can be processed by this site, false if not.
-	 * @throws NullPointerException
-	 *             if the uri parameter is null
-	 */
-	// TODO use distinct matcher interface
-	public boolean isMatch(URI uri);
+	public Canonizer getCanonizer();
 
-	/**
-	 * Transform a URI according to the parameters.
-	 * 
-	 * @param uri
-	 *            The URI to be transformed.
-	 * @param v
-	 *            The {@link Verbosity}.
-	 * @param target
-	 *            The target, i.e. Plain, DokuWiki, …
-	 * @param format
-	 *            The output format.
-	 * @return The transformation result.
-	 */
-	public String transform(URI uri, Verbosity v, String target);
+	public Extractor getExtractor();
 }

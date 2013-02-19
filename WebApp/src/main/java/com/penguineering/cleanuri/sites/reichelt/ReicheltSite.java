@@ -1,14 +1,10 @@
 package com.penguineering.cleanuri.sites.reichelt;
 
-import java.net.URI;
-import java.util.Map;
+import net.jcip.annotations.ThreadSafe;
 
 import com.penguineering.cleanuri.Site;
-import com.penguineering.cleanuri.Verbosity;
 import com.penguineering.cleanuri.api.Canonizer;
 import com.penguineering.cleanuri.api.Extractor;
-import com.penguineering.cleanuri.api.ExtractorException;
-import com.penguineering.cleanuri.api.Metakey;
 
 /**
  * Site implementation for reichelt.de.
@@ -16,6 +12,7 @@ import com.penguineering.cleanuri.api.Metakey;
  * @author Tux (tux@netz39.de)
  * 
  */
+@ThreadSafe
 public class ReicheltSite implements Site {
 	public static ReicheltSite getInstance() {
 		return new ReicheltSite();
@@ -40,40 +37,13 @@ public class ReicheltSite implements Site {
 	}
 
 	@Override
-	public boolean isMatch(URI uri) {
-		return canonizer.isSuitable(uri);
+	public Canonizer getCanonizer() {
+		return this.canonizer;
 	}
 
 	@Override
-	public String transform(URI uri, Verbosity v, String target) {
-		final URI href = canonizer.canonize(uri);
-
-		StringBuilder result = new StringBuilder();
-		if (v == Verbosity.DECORATED) {
-			try {
-				Map<Metakey, String> meta = extractor.extractMetadata(uri);
-
-				result.append(createDokuwikiString(href, meta));
-			} catch (ExtractorException e) {
-				throw new RuntimeException(e);
-			}
-		} else
-			result.append(href);
-
-		return result.toString();
-	}
-
-	private String createDokuwikiString(URI href, Map<Metakey, String> meta) {
-		StringBuilder result = new StringBuilder();
-
-		result.append("[[");
-		result.append(href.toASCIIString());
-		result.append("|");
-		result.append(meta.get(Metakey.ID));
-		result.append("]] – ");
-		result.append(meta.get(Metakey.NAME));
-
-		return result.toString();
+	public Extractor getExtractor() {
+		return this.extractor;
 	}
 
 }
