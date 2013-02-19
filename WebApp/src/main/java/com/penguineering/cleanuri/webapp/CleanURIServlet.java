@@ -16,9 +16,9 @@ package com.penguineering.cleanuri.webapp;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.NoSuchElementException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import net.jcip.annotations.ThreadSafe;
 
 import com.penguineering.cleanuri.Site;
-import com.penguineering.cleanuri.Verbosity;
 import com.penguineering.cleanuri.api.Decorator;
 import com.penguineering.cleanuri.api.ExtractorException;
 import com.penguineering.cleanuri.api.Metakey;
@@ -39,11 +38,13 @@ import com.penguineering.cleanuri.sites.reichelt.ReicheltSite;
 public class CleanURIServlet extends HttpServlet {
 	private static final long serialVersionUID = 8983389610237056848L;
 
-	static final Set<Site> sites;
+	static final Map<String, Site> sites;
 
 	static {
-		sites = new HashSet<Site>();
-		sites.add(ReicheltSite.getInstance());
+		sites = new HashMap<String, Site>();
+
+		final Site site = ReicheltSite.getInstance();
+		sites.put(site.getLabel(), site);
 	}
 
 	@Override
@@ -61,48 +62,73 @@ public class CleanURIServlet extends HttpServlet {
 			return;
 		}
 
-		// get the verbosity
-		final Verbosity v;
+		// retrieve the site
+		final Site site;
 		try {
-			v = retrieveVerbosityParameter(request);
+			final String site_label = retrieveSiteParameter(request);
+			site = getSite(uri, site_label);
+		} catch (NoSuchElementException e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+					"Invalid site: " + e.getMessage());
+			return;
 		} catch (IllegalArgumentException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-					"On reading verbosity parameter: " + e.getMessage());
+					"Invalid site site: " + e.getMessage());
 			return;
 		}
-
-		// get the target platform
-		final String target = retrieveTargetParameter(request);
-
-		// retrieve the matching site
-		final Site site = getSite(uri);
-
 		if (site == null) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND,
 					"No site matching the URI could be found!");
 			return;
 		}
 
-		URI href = site.getCanonizer().canonize(uri);
-		Map<Metakey, String> meta;
-		try {
-			meta = site.getExtractor().extractMetadata(href);
-		} catch (ExtractorException e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-					"Error during meta-data extraction: " + e.getMessage());
+		// retrieve the decorator
+		final Decorator decorator;
+		final String decorator_label = retrieveDecoratorParameter(request);
+		if (decorator_label == null)
+			decorator = null;
+		else if (decorator_label.equals("dokuwiki"))
+			decorator = new DokuwikiDecorator();
+		else {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+					"Invalid decorator label!");
 			return;
 		}
 
-		Decorator decorator = new DokuwikiDecorator();
+		URI href = site.getCanonizer().canonize(uri);
 
-		response.getWriter().println(decorator.decorate(href, meta));
+		if (decorator == null)
+			response.getWriter().print(href.toASCIIString());
+		else {
+			Map<Metakey, String> meta;
+			try {
+				meta = site.getExtractor().extractMetadata(href);
+			} catch (ExtractorException e) {
+				response.sendError(
+						HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+						"Error during meta-data extraction: " + e.getMessage());
+				return;
+			}
+
+			response.getWriter().println(decorator.decorate(href, meta));
+		}
 	}
 
-	private Site getSite(URI uri) {
+	private Site getSite(URI uri, String label) {
 		if (uri == null)
 			throw new NullPointerException("URI argument must not be null!");
 
-		for (Site site : sites)
+		if (label != null) {
+			final Site site = sites.get(label);
+			if (site == null)
+				throw new NoSuchElementException("Unknown site label: " + label);
+			if (!site.getCanonizer().isSuitable(uri))
+				throw new IllegalArgumentException(
+						"Site is not suitable for the provided URI!");
+			return site;
+		}
+
+		for (Site site : sites.values())
 			if (site.getCanonizer().isSuitable(uri))
 				return site;
 
@@ -138,46 +164,35 @@ public class CleanURIServlet extends HttpServlet {
 	}
 
 	/**
-	 * Retrieve the verbosity from the request. Defaults to MINIMAL.
+	 * Retrieve the site parameter from the request. This allows to specify a
+	 * site for handling the URI. If left out, the site is determined
+	 * automatically.
 	 * 
-	 * @return the target verbosity, MINIMAL if the parameter was ommited.
+	 * @return the site label.
 	 * @throws NullPointerException
 	 *             if the request argument is null.
-	 * @throws IllegalArgumentException
-	 *             if the verbosity in the request is invalid.
 	 */
-	private static Verbosity retrieveVerbosityParameter(
-			HttpServletRequest request) {
+	private static String retrieveSiteParameter(HttpServletRequest request) {
 		if (request == null)
 			throw new NullPointerException("Request argument must not be null!");
 
-		final String p_v = request.getParameter("v");
-
-		final Verbosity v;
-		if (p_v == null || p_v.isEmpty())
-			v = Verbosity.MINIMAL;
-		else {
-			v = Verbosity.valueOf(p_v.toUpperCase());
-		}
-
-		if (v == null)
-			throw new IllegalArgumentException("Unknown verbosity!");
-
-		return v;
+		return (String) request.getParameter("site");
 	}
 
 	/**
-	 * Retrieve the target format from the request.
+	 * Retrieve the decorator parameter from the request. This allows to specify
+	 * a decorator for transforming the URI to an output. If left out, the plain
+	 * URI is returned.
 	 * 
-	 * @return the target format.
+	 * @return the decorator label.
 	 * @throws NullPointerException
 	 *             if the request argument is null.
 	 */
-	private static String retrieveTargetParameter(HttpServletRequest request) {
+	private static String retrieveDecoratorParameter(HttpServletRequest request) {
 		if (request == null)
 			throw new NullPointerException("Request argument must not be null!");
 
-		return (String) request.getParameter("target");
+		return (String) request.getParameter("decorator");
 	}
 
 }
