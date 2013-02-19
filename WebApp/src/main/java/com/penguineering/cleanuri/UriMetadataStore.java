@@ -1,39 +1,39 @@
 package com.penguineering.cleanuri;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.jcip.annotations.ThreadSafe;
+
+import com.penguineering.cleanuri.api.Metakey;
 
 @ThreadSafe
 public enum UriMetadataStore {
 	INSTANCE;
 
-	private final Map<URI, Properties> uriProps;
+	private final Map<URI, Map<Metakey, String>> uriProps;
 
 	private UriMetadataStore() {
-		uriProps = new ConcurrentHashMap<URI, Properties>();
+		uriProps = new ConcurrentHashMap<URI, Map<Metakey, String>>();
 	}
 
-	public Properties getUriProperties(URI rec) {
-		final Properties props = uriProps.get(rec);
-		return props == null ? null : (Properties) props.clone();
+	public Map<Metakey, String> getUriProperties(URI rec) {
+		final Map<Metakey, String> props = uriProps.get(rec);
+		return props == null ? null : new HashMap<Metakey, String>(props);
 	}
 
-	public void addUriProperties(URI rec, Properties props) {
+	public void addUriProperties(URI rec, Map<Metakey, String> props) {
 		synchronized (uriProps) {
-			Properties p = uriProps.get(rec);
+			Map<Metakey, String> p = uriProps.get(rec);
 
 			if (p == null) {
-				p = new Properties();
+				p = new HashMap<Metakey, String>();
 				uriProps.put(rec, p);
 			}
 
-			for (Entry<Object, Object> e : props.entrySet())
-				p.setProperty((String) e.getKey(), (String) e.getValue());
+			p.putAll(props);
 		}
 	}
 

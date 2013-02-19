@@ -1,13 +1,14 @@
 package com.penguineering.cleanuri.sites.reichelt;
 
 import java.net.URI;
-import java.util.Properties;
-import java.util.concurrent.Callable;
+import java.util.Map;
 
 import com.penguineering.cleanuri.Site;
-import com.penguineering.cleanuri.UriMetadataStore;
 import com.penguineering.cleanuri.Verbosity;
 import com.penguineering.cleanuri.api.Canonizer;
+import com.penguineering.cleanuri.api.Extractor;
+import com.penguineering.cleanuri.api.ExtractorException;
+import com.penguineering.cleanuri.api.Metakey;
 
 /**
  * Site implementation for reichelt.de.
@@ -21,9 +22,11 @@ public class ReicheltSite implements Site {
 	}
 
 	private final Canonizer canonizer;
+	private final Extractor extractor;
 
 	private ReicheltSite() {
 		this.canonizer = ReicheltCanonizer.getInstance();
+		this.extractor = ReicheltExtractor.getInstance();
 	}
 
 	@Override
@@ -48,18 +51,10 @@ public class ReicheltSite implements Site {
 		StringBuilder result = new StringBuilder();
 		if (v == Verbosity.DECORATED) {
 			try {
-				Properties meta = UriMetadataStore.INSTANCE
-						.getUriProperties(href);
-
-				if (meta == null) {
-					Callable<Properties> c = ReicheltMetaRetrievalWorker
-							.forURI(href);
-					meta = c.call();
-					UriMetadataStore.INSTANCE.addUriProperties(href, meta);
-				}
+				Map<Metakey, String> meta = extractor.extractMetadata(uri);
 
 				result.append(createDokuwikiString(href, meta));
-			} catch (Exception e) {
+			} catch (ExtractorException e) {
 				throw new RuntimeException(e);
 			}
 		} else
@@ -68,15 +63,15 @@ public class ReicheltSite implements Site {
 		return result.toString();
 	}
 
-	private String createDokuwikiString(URI href, Properties meta) {
+	private String createDokuwikiString(URI href, Map<Metakey, String> meta) {
 		StringBuilder result = new StringBuilder();
 
 		result.append("[[");
 		result.append(href.toASCIIString());
 		result.append("|");
-		result.append(meta.get(ReicheltMetaRetrievalWorker.PAR_ARTID));
+		result.append(meta.get(Metakey.ID));
 		result.append("]] – ");
-		result.append(meta.get(ReicheltMetaRetrievalWorker.PAR_DESCRIPTION));
+		result.append(meta.get(Metakey.NAME));
 
 		return result.toString();
 	}
