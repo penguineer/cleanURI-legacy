@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 import com.penguineering.cleanuri.Site;
 import com.penguineering.cleanuri.UriMetadataStore;
 import com.penguineering.cleanuri.Verbosity;
+import com.penguineering.cleanuri.api.Canonizer;
 
 /**
  * Site implementation for reichelt.de.
@@ -19,7 +20,10 @@ public class ReicheltSite implements Site {
 		return new ReicheltSite();
 	}
 
+	private final Canonizer canonizer;
+
 	private ReicheltSite() {
+		this.canonizer = ReicheltCanonizer.getInstance();
 	}
 
 	@Override
@@ -34,23 +38,12 @@ public class ReicheltSite implements Site {
 
 	@Override
 	public boolean isMatch(URI uri) {
-		if (uri == null)
-			throw new NullPointerException("URI argument must not be null!");
-
-		final String authority = uri.getAuthority();
-
-		return authority != null && authority.endsWith("reichelt.de");
+		return canonizer.isSuitable(uri);
 	}
 
 	@Override
 	public String transform(URI uri, Verbosity v, String target) {
-		if (!isMatch(uri))
-			throw new IllegalArgumentException("URI does not match this site!");
-
-		final String ART_id = getArticleID(uri);
-
-		final URI href = URI
-				.create("http://www.reichelt.de/index.html?ARTICLE=" + ART_id);
+		final URI href = canonizer.canonize(uri);
 
 		StringBuilder result = new StringBuilder();
 		if (v == Verbosity.DECORATED) {
@@ -86,19 +79,6 @@ public class ReicheltSite implements Site {
 		result.append(meta.get(ReicheltMetaRetrievalWorker.PAR_DESCRIPTION));
 
 		return result.toString();
-	}
-
-	private String getArticleID(URI uri) {
-		String query = uri.getQuery();
-
-		// extract the ARTICLE from the query
-		final int ART_idx = query.indexOf("ARTICLE=");
-		int COL_idx = query.indexOf(";", ART_idx);
-		if (COL_idx == -1)
-			COL_idx = query.length();
-
-		return query.substring(ART_idx + 8, COL_idx);
-
 	}
 
 }
