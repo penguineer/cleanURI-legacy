@@ -4,8 +4,10 @@ import java.net.URI;
 import java.util.Map;
 
 import com.penguineering.cleanuri.Site;
+import com.penguineering.cleanuri.api.Decorator;
 import com.penguineering.cleanuri.api.ExtractorException;
 import com.penguineering.cleanuri.api.Metakey;
+import com.penguineering.cleanuri.decorators.DokuwikiDecorator;
 
 public class ReicheltSiteTestFrame {
 
@@ -18,7 +20,7 @@ public class ReicheltSiteTestFrame {
 		URI href = site.getCanonizer().canonize(uri);
 		Map<Metakey, String> meta = site.getExtractor().extractMetadata(href);
 
-		System.out.println(href);
-		System.out.println(meta);
+		Decorator decorator = new DokuwikiDecorator();
+		System.out.println(decorator.decorate(href, meta));
 	}
 }

@@ -16,8 +16,10 @@ import net.jcip.annotations.ThreadSafe;
 
 import com.penguineering.cleanuri.Site;
 import com.penguineering.cleanuri.Verbosity;
+import com.penguineering.cleanuri.api.Decorator;
 import com.penguineering.cleanuri.api.ExtractorException;
 import com.penguineering.cleanuri.api.Metakey;
+import com.penguineering.cleanuri.decorators.DokuwikiDecorator;
 import com.penguineering.cleanuri.sites.reichelt.ReicheltSite;
 
 @ThreadSafe
@@ -78,7 +80,9 @@ public class CleanURIServlet extends HttpServlet {
 			return;
 		}
 
-		response.getWriter().println(createDokuwikiString(href, meta));
+		Decorator decorator = new DokuwikiDecorator();
+
+		response.getWriter().println(decorator.decorate(href, meta));
 	}
 
 	private Site getSite(URI uri) {
