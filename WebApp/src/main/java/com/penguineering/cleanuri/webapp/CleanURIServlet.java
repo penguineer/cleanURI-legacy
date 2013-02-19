@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -15,6 +16,8 @@ import net.jcip.annotations.ThreadSafe;
 
 import com.penguineering.cleanuri.Site;
 import com.penguineering.cleanuri.Verbosity;
+import com.penguineering.cleanuri.api.ExtractorException;
+import com.penguineering.cleanuri.api.Metakey;
 import com.penguineering.cleanuri.sites.reichelt.ReicheltSite;
 
 @ThreadSafe
@@ -65,7 +68,17 @@ public class CleanURIServlet extends HttpServlet {
 			return;
 		}
 
-		response.getWriter().println(site.transform(uri, v, target));
+		URI href = site.getCanonizer().canonize(uri);
+		Map<Metakey, String> meta;
+		try {
+			meta = site.getExtractor().extractMetadata(href);
+		} catch (ExtractorException e) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+					"Error during meta-data extraction: " + e.getMessage());
+			return;
+		}
+
+		response.getWriter().println(createDokuwikiString(href, meta));
 	}
 
 	private Site getSite(URI uri) {
@@ -73,10 +86,23 @@ public class CleanURIServlet extends HttpServlet {
 			throw new NullPointerException("URI argument must not be null!");
 
 		for (Site site : sites)
-			if (site.isMatch(uri))
+			if (site.getCanonizer().isSuitable(uri))
 				return site;
 
 		return null;
+	}
+
+	private String createDokuwikiString(URI href, Map<Metakey, String> meta) {
+		StringBuilder result = new StringBuilder();
+
+		result.append("[[");
+		result.append(href.toASCIIString());
+		result.append("|");
+		result.append(meta.get(Metakey.ID));
+		result.append("]] – ");
+		result.append(meta.get(Metakey.NAME));
+
+		return result.toString();
 	}
 
 	/**
