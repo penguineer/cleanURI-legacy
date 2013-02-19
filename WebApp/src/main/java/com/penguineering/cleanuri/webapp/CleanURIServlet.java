@@ -85,7 +85,7 @@ public class CleanURIServlet extends HttpServlet {
 		// retrieve the decorator
 		final Decorator decorator;
 		final String decorator_label = retrieveDecoratorParameter(request);
-		if (decorator_label == null)
+		if (decorator_label == null || decorator_label.isEmpty())
 			decorator = null;
 		else if (decorator_label.equals("dokuwiki"))
 			decorator = new DokuwikiDecorator();
