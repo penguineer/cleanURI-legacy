@@ -109,19 +109,6 @@ public class CleanURIServlet extends HttpServlet {
 		return null;
 	}
 
-	private String createDokuwikiString(URI href, Map<Metakey, String> meta) {
-		StringBuilder result = new StringBuilder();
-
-		result.append("[[");
-		result.append(href.toASCIIString());
-		result.append("|");
-		result.append(meta.get(Metakey.ID));
-		result.append("]] – ");
-		result.append(meta.get(Metakey.NAME));
-
-		return result.toString();
-	}
-
 	/**
 	 * Retrieve the URI from the HTTP request.
 	 * 
