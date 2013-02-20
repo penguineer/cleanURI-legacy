@@ -37,11 +37,7 @@ import com.penguineering.cleanuri.api.Metakey;
  * 
  */
 public class ReicheltExtractor implements Extractor {
-	public static ReicheltExtractor getInstance() {
-		return new ReicheltExtractor();
-	}
-
-	private ReicheltExtractor() {
+	public ReicheltExtractor() {
 
 	}
 

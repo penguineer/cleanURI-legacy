@@ -27,18 +27,9 @@ import com.penguineering.cleanuri.api.Canonizer;
  */
 @ThreadSafe
 public class ReicheltCanonizer implements Canonizer {
-	/**
-	 * Get an instance of the Reichelt canonizer.
-	 * 
-	 * @return an instance of the Reichelt canonizer.
-	 */
-	public static ReicheltCanonizer getInstance() {
-		return new ReicheltCanonizer();
-	}
-
 	private final String PREFIX = "http://www.reichelt.de/index.html?ARTICLE=";
 
-	private ReicheltCanonizer() {
+	public ReicheltCanonizer() {
 	}
 
 	@Override

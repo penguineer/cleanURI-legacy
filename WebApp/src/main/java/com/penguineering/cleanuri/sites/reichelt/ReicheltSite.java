@@ -36,9 +36,8 @@ public class ReicheltSite implements Site {
 	private final Extractor extractor;
 
 	private ReicheltSite() {
-		this.canonizer = ReicheltCanonizer.getInstance();
-		this.extractor = CachingExtractor.forExtractor(ReicheltExtractor
-				.getInstance());
+		this.canonizer = new ReicheltCanonizer();
+		this.extractor = CachingExtractor.forExtractor(new ReicheltExtractor());
 	}
 
 	@Override
