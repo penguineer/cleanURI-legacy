@@ -31,8 +31,12 @@ public class PlainDecorator implements Decorator {
 	}
 
 	@Override
+	public String getLabel() {
+		return "plain";
+	}
+
+	@Override
 	public String decorate(URI uri, Map<Metakey, String> meta) {
 		return uri.toASCIIString();
 	}
-
 }

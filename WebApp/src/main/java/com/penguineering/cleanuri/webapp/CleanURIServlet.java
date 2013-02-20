@@ -46,12 +46,14 @@ public class CleanURIServlet extends HttpServlet {
 	static {
 		sites = new HashMap<String, Site>();
 
-		final Site site = ReicheltSite.getInstance();
-		sites.put(site.getLabel(), site);
+		final Site reichelt = ReicheltSite.getInstance();
+		sites.put(reichelt.getLabel(), reichelt);
 
 		decorators = new HashMap<String, Decorator>();
-		decorators.put("plain", new PlainDecorator());
-		decorators.put("dokuwiki", new DokuwikiDecorator());
+		final Decorator plain = new PlainDecorator();
+		decorators.put(plain.getLabel(), plain);
+		final Decorator dokuwiki = new DokuwikiDecorator();
+		decorators.put(dokuwiki.getLabel(), dokuwiki);
 	}
 
 	@Override

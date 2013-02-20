@@ -25,6 +25,11 @@ public class DokuwikiDecorator implements Decorator {
 	}
 
 	@Override
+	public String getLabel() {
+		return "dokuwiki";
+	}
+
+	@Override
 	public String decorate(URI uri, Map<Metakey, String> meta) {
 		if (uri == null || meta == null)
 			throw new NullPointerException("Arguments must not be null!");
