@@ -16,6 +16,7 @@ package com.penguineering.cleanuri.webapp;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -32,6 +33,7 @@ import com.penguineering.cleanuri.api.Decorator;
 import com.penguineering.cleanuri.api.ExtractorException;
 import com.penguineering.cleanuri.api.Metakey;
 import com.penguineering.cleanuri.decorators.DokuwikiDecorator;
+import com.penguineering.cleanuri.decorators.PlainDecorator;
 import com.penguineering.cleanuri.sites.reichelt.ReicheltSite;
 
 @ThreadSafe
@@ -39,12 +41,17 @@ public class CleanURIServlet extends HttpServlet {
 	private static final long serialVersionUID = 8983389610237056848L;
 
 	static final Map<String, Site> sites;
+	static final Map<String, Decorator> decorators;
 
 	static {
 		sites = new HashMap<String, Site>();
 
 		final Site site = ReicheltSite.getInstance();
 		sites.put(site.getLabel(), site);
+
+		decorators = new HashMap<String, Decorator>();
+		decorators.put("plain", new PlainDecorator());
+		decorators.put("dokuwiki", new DokuwikiDecorator());
 	}
 
 	@Override
@@ -83,13 +90,9 @@ public class CleanURIServlet extends HttpServlet {
 		}
 
 		// retrieve the decorator
-		final Decorator decorator;
 		final String decorator_label = retrieveDecoratorParameter(request);
-		if (decorator_label == null || decorator_label.isEmpty())
-			decorator = null;
-		else if (decorator_label.equals("dokuwiki"))
-			decorator = new DokuwikiDecorator();
-		else {
+		final Decorator decorator = decorators.get(decorator_label);
+		if (decorator == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST,
 					"Invalid decorator label!");
 			return;
@@ -97,10 +100,13 @@ public class CleanURIServlet extends HttpServlet {
 
 		URI href = site.getCanonizer().canonize(uri);
 
-		if (decorator == null)
-			response.getWriter().print(href.toASCIIString());
-		else {
-			Map<Metakey, String> meta;
+		Map<Metakey, String> meta;
+
+		// special handling:
+		// the "plain" decorator does not need meta-data.
+		if (decorator_label.equals("plain"))
+			meta = Collections.emptyMap();
+		else
 			try {
 				meta = site.getExtractor().extractMetadata(href);
 			} catch (ExtractorException e) {
@@ -110,8 +116,7 @@ public class CleanURIServlet extends HttpServlet {
 				return;
 			}
 
-			response.getWriter().println(decorator.decorate(href, meta));
-		}
+		response.getWriter().println(decorator.decorate(href, meta));
 	}
 
 	private Site getSite(URI uri, String label) {
@@ -182,9 +187,9 @@ public class CleanURIServlet extends HttpServlet {
 	/**
 	 * Retrieve the decorator parameter from the request. This allows to specify
 	 * a decorator for transforming the URI to an output. If left out, the plain
-	 * URI is returned.
+	 * decorator label is returned.
 	 * 
-	 * @return the decorator label.
+	 * @return the decorator label, defaults to "plain" if not set.
 	 * @throws NullPointerException
 	 *             if the request argument is null.
 	 */
@@ -192,7 +197,9 @@ public class CleanURIServlet extends HttpServlet {
 		if (request == null)
 			throw new NullPointerException("Request argument must not be null!");
 
-		return (String) request.getParameter("decorator");
+		final String p = request.getParameter("decorator");
+
+		return (p == null || p.isEmpty()) ? "plain" : p;
 	}
 
 }
