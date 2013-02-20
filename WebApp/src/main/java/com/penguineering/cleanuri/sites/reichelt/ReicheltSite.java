@@ -15,6 +15,7 @@ package com.penguineering.cleanuri.sites.reichelt;
 
 import net.jcip.annotations.ThreadSafe;
 
+import com.penguineering.cleanuri.CachingExtractor;
 import com.penguineering.cleanuri.Site;
 import com.penguineering.cleanuri.api.Canonizer;
 import com.penguineering.cleanuri.api.Extractor;
@@ -36,7 +37,8 @@ public class ReicheltSite implements Site {
 
 	private ReicheltSite() {
 		this.canonizer = ReicheltCanonizer.getInstance();
-		this.extractor = ReicheltExtractor.getInstance();
+		this.extractor = CachingExtractor.forExtractor(ReicheltExtractor
+				.getInstance());
 	}
 
 	@Override
