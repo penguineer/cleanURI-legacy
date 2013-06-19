@@ -69,9 +69,11 @@ public class ReicheltExtractor implements Extractor {
 					if (!line.contains("<h2>"))
 						continue;
 
+					// h2
+					int h2_idx = line.indexOf("h2");
 					// Doppelpunkte
 					int col_idx = line.indexOf("<span> :: <span");
-					final String art_id = line.substring(8, col_idx);
+					final String art_id = line.substring(h2_idx + 4, col_idx);
 					meta.put(Metakey.ID, html2oUTF8(art_id).trim());
 
 					int span_idx = line.indexOf("</span>");
