@@ -52,17 +52,26 @@ public class ReicheltCanonizer implements Canonizer {
 		return URI.create(PREFIX + ART_id);
 	}
 
+	private static final String ART_ID = "ARTICLE=";
+
 	private String getArticleID(URI uri) {
 		String query = uri.getQuery();
 
 		// extract the ARTICLE from the query
-		final int ART_idx = query.indexOf("ARTICLE=");
-		int COL_idx = query.indexOf(";", ART_idx);
-		// take the rest of the string if there are no more delimiters
-		if (COL_idx == -1)
-			COL_idx = query.length();
+		final int ART_idx = query.indexOf(ART_ID);
+		final int COL_idx = query.indexOf(";", ART_idx);
+		final int AMP_idx = query.indexOf("&", ART_idx);
 
-		return query.substring(ART_idx + 8, COL_idx);
+		final int idx;
+		// take the rest of the string if there are no more delimiters
+		if (COL_idx == -1 && AMP_idx == -1)
+			idx = query.length();
+		else
+			// take index of AMP or COL, whichever exists and comes first
+			idx = Math.min(COL_idx == -1 ? query.length() : COL_idx,
+					AMP_idx == -1 ? query.length() : AMP_idx);
+
+		return query.substring(ART_idx + ART_ID.length(), idx);
 
 	}
 
