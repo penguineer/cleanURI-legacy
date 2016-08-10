@@ -30,6 +30,8 @@ import com.penguineering.cleanuri.api.Extractor;
 import com.penguineering.cleanuri.api.ExtractorException;
 import com.penguineering.cleanuri.api.Metakey;
 
+import ru.lanwen.verbalregex.VerbalExpression;
+
 /**
  * Meta-data extractor for Reichelt catalog data.
  * 
@@ -37,13 +39,18 @@ import com.penguineering.cleanuri.api.Metakey;
  * 
  */
 public class ReicheltExtractor implements Extractor {
+	static final VerbalExpression idRegex = VerbalExpression.regex().startOfLine().anything().then("var zx_fn = \"")
+			.capture().anything().endCapture().then("\";").endOfLine().build();
+
+	static final VerbalExpression descRegex = VerbalExpression.regex().startOfLine().anything()
+			.then("var zx_description = \"").capture().anything().endCapture().then("\";").endOfLine().build();
+
 	public ReicheltExtractor() {
 
 	}
 
 	@Override
-	public Map<Metakey, String> extractMetadata(URI uri)
-			throws ExtractorException {
+	public Map<Metakey, String> extractMetadata(URI uri) throws ExtractorException {
 		if (uri == null)
 			throw new NullPointerException("URI argument must not be null!");
 
@@ -61,27 +68,21 @@ public class ReicheltExtractor implements Extractor {
 
 			LineNumberReader reader = null;
 			try {
-				reader = new LineNumberReader(new InputStreamReader(
-						con.getInputStream()));
+				reader = new LineNumberReader(new InputStreamReader(con.getInputStream()));
 
 				String line;
 				while ((line = reader.readLine()) != null) {
-					if (!line.contains("<h2>"))
-						continue;
+					// extract the id
+					if (idRegex.test(line)) {
+						final String id = idRegex.getText(line, 1);
+						meta.put(Metakey.ID, html2oUTF8(id).trim());
+					}
 
-					// h2
-					int h2_idx = line.indexOf("h2");
-					// Doppelpunkte
-					int col_idx = line.indexOf("<span> :: <span");
-					final String art_id = line.substring(h2_idx + 3, col_idx);
-					meta.put(Metakey.ID, html2oUTF8(art_id).trim());
-
-					int span_idx = line.indexOf("</span>");
-					final String art_name = line.substring(col_idx + 32,
-							span_idx);
-					meta.put(Metakey.NAME, html2oUTF8(art_name).trim());
-
-					break;
+					// extract the description
+					if (descRegex.test(line)) {
+						final String desc = descRegex.getText(line, 1);
+						meta.put(Metakey.NAME, html2oUTF8(desc).trim());
+					}
 				}
 
 				return meta;
@@ -90,18 +91,18 @@ public class ReicheltExtractor implements Extractor {
 					reader.close();
 			}
 		} catch (IOException e) {
-			throw new ExtractorException("I/O exception during extraction: "
-					+ e.getMessage(), e, uri);
+			throw new ExtractorException("I/O exception during extraction: " + e.getMessage(), e, uri);
 		}
 
 	}
 
-	private static String html2oUTF8(String html)
-			throws UnsupportedEncodingException {
+	private static String html2oUTF8(String html) throws UnsupportedEncodingException {
 		final String iso = StringEscapeUtils.unescapeHtml4(html);
 
-		final byte[] b = iso.getBytes("ISO-8859-15");
-		return new String(b, "ISO-8859-15");
-	}
+		final String encoding = "ISO-8859-1"; // according to page header
+		// final String encoding = "UTF-8";
 
+		final byte[] b = iso.getBytes(encoding);
+		return new String(b, encoding);
+	}
 }
