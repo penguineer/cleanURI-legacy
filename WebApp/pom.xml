@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.penguineering</groupId>
 	<artifactId>cleanuri-webapp</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	
 	<packaging>war</packaging>
 	<name>CleanURI WebApp</name>
@@ -30,8 +30,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -96,6 +96,12 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.1</version>
 		</dependency>
+		
+		<dependency>
+		    <groupId>ru.lanwen.verbalregex</groupId>
+		    <artifactId>java-verbal-expressions</artifactId>
+		    <version>1.4</version>
+		</dependency>		
 	</dependencies>
 
 </project>
