@@ -27,7 +27,7 @@ import com.penguineering.cleanuri.api.Canonizer;
  */
 @ThreadSafe
 public class ReicheltCanonizer implements Canonizer {
-	private final String PREFIX = "http://www.reichelt.de/index.html?ARTICLE=";
+	private final String PREFIX = "https://www.reichelt.de/index.html?ARTICLE=";
 
 	public ReicheltCanonizer() {
 	}
