@@ -39,11 +39,11 @@ import ru.lanwen.verbalregex.VerbalExpression;
  * 
  */
 public class ReicheltExtractor implements Extractor {
-	static final VerbalExpression idRegex = VerbalExpression.regex().startOfLine().anything().then("var zx_fn = \"")
-			.capture().anything().endCapture().then("\";").endOfLine().build();
+	static final VerbalExpression idRegex = VerbalExpression.regex().startOfLine().then("<title>").capture().anything()
+			.endCapture().then(":").anything().then(" bei reichelt elektronik</title>").endOfLine().build();
 
-	static final VerbalExpression descRegex = VerbalExpression.regex().startOfLine().anything()
-			.then("var zx_description = \"").capture().anything().endCapture().then("\";").endOfLine().build();
+	static final VerbalExpression descRegex = VerbalExpression.regex().startOfLine().then("<title>").anything()
+			.then(":").capture().anything().endCapture().then(" bei reichelt elektronik</title>").endOfLine().build();
 
 	public ReicheltExtractor() {
 
