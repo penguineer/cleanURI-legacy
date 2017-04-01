@@ -34,6 +34,7 @@ import com.penguineering.cleanuri.api.ExtractorException;
 import com.penguineering.cleanuri.api.Metakey;
 import com.penguineering.cleanuri.decorators.DokuwikiDecorator;
 import com.penguineering.cleanuri.decorators.PlainDecorator;
+import com.penguineering.cleanuri.sites.amazon.AmazonSite;
 import com.penguineering.cleanuri.sites.reichelt.ReicheltSite;
 
 @ThreadSafe
@@ -45,6 +46,9 @@ public class CleanURIServlet extends HttpServlet {
 
 	static {
 		sites = new HashMap<String, Site>();
+
+		final Site amazon = AmazonSite.getInstance();
+		sites.put(amazon.getLabel(),  amazon);
 
 		final Site reichelt = ReicheltSite.getInstance();
 		sites.put(reichelt.getLabel(), reichelt);
