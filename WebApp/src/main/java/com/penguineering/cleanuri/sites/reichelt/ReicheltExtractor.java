@@ -55,17 +55,26 @@ public class ReicheltExtractor implements Extractor {
 		if (uri == null)
 			throw new NullPointerException("URI argument must not be null!");
 
+		final String uriStr = uri.toASCIIString();
+
+		// Check if the prefix matches
+		if (!uriStr.startsWith(ReicheltSite.PREFIX))
+			throw new IllegalArgumentException(
+					"Reichelt extractor has been presented a URI which does not match the Reichelt prefix!");
+
 		/*
-		 * Create a URL from the provided URI. Reichelt made everybode use HTTPS
-		 * now, unfortunately this is encoded in the URI. HTTP still works, but
-		 * will result in a 301 response, which we resolve beforehand by
-		 * changing the http scheme in the URI to https.
+		 * Create a URL from the provided URI.
+		 * 
+		 * Reichelt made everybode use HTTPS now, unfortunately this is encoded
+		 * in the URI. HTTP still works, but will result in a 301 response,
+		 * which we resolve beforehand by changing the http scheme in the URI to
+		 * https.
 		 */
 		final URL url;
 		try {
 			// Reichelt URLs must be HTTPS now
 			if (uri.getScheme().equals("http"))
-				url = new URI("https" + uri.toASCIIString().substring(4)).toURL();
+				url = new URI("https" + uriStr.substring(4)).toURL();
 			else
 				url = uri.toURL();
 		} catch (MalformedURLException e) {
