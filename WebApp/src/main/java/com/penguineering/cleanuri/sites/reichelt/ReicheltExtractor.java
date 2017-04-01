@@ -19,6 +19,7 @@ import java.io.LineNumberReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
@@ -54,11 +55,32 @@ public class ReicheltExtractor implements Extractor {
 		if (uri == null)
 			throw new NullPointerException("URI argument must not be null!");
 
-		URL url;
+		final String uriStr = uri.toASCIIString();
+
+		// Check if the prefix matches
+		if (!uriStr.startsWith(ReicheltSite.PREFIX))
+			throw new IllegalArgumentException(
+					"Reichelt extractor has been presented a URI which does not match the Reichelt prefix!");
+
+		/*
+		 * Create a URL from the provided URI.
+		 * 
+		 * Reichelt made everybode use HTTPS now, unfortunately this is encoded
+		 * in the URI. HTTP still works, but will result in a 301 response,
+		 * which we resolve beforehand by changing the http scheme in the URI to
+		 * https.
+		 */
+		final URL url;
 		try {
-			url = uri.toURL();
+			// Reichelt URLs must be HTTPS now
+			if (uri.getScheme().equals("http"))
+				url = new URI("https" + uriStr.substring(4)).toURL();
+			else
+				url = uri.toURL();
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException("The provided URI is not a URL!");
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Could not convert provided URL to https scheme!", e);
 		}
 
 		Map<Metakey, String> meta = new HashMap<Metakey, String>();

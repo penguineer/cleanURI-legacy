@@ -27,7 +27,6 @@ import com.penguineering.cleanuri.api.Canonizer;
  */
 @ThreadSafe
 public class ReicheltCanonizer implements Canonizer {
-	private final String PREFIX = "https://www.reichelt.de/index.html?ARTICLE=";
 
 	public ReicheltCanonizer() {
 	}
@@ -49,7 +48,7 @@ public class ReicheltCanonizer implements Canonizer {
 
 		final String ART_id = getArticleID(uri);
 
-		return URI.create(PREFIX + ART_id);
+		return URI.create(ReicheltSite.PREFIX + ART_id);
 	}
 
 	private static final String ART_ID = "ARTICLE=";
@@ -68,8 +67,7 @@ public class ReicheltCanonizer implements Canonizer {
 			idx = query.length();
 		else
 			// take index of AMP or COL, whichever exists and comes first
-			idx = Math.min(COL_idx == -1 ? query.length() : COL_idx,
-					AMP_idx == -1 ? query.length() : AMP_idx);
+			idx = Math.min(COL_idx == -1 ? query.length() : COL_idx, AMP_idx == -1 ? query.length() : AMP_idx);
 
 		return query.substring(ART_idx + ART_ID.length(), idx);
 
