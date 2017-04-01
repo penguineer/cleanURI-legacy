@@ -28,6 +28,8 @@ import com.penguineering.cleanuri.api.Extractor;
  */
 @ThreadSafe
 public class ReicheltSite implements Site {
+	public static final String PREFIX = "http://www.reichelt.de/index.html?ARTICLE=";
+
 	public static ReicheltSite getInstance() {
 		return new ReicheltSite();
 	}
