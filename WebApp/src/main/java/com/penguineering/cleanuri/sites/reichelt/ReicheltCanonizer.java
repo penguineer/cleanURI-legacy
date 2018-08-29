@@ -15,9 +15,10 @@ package com.penguineering.cleanuri.sites.reichelt;
 
 import java.net.URI;
 
-import net.jcip.annotations.ThreadSafe;
-
 import com.penguineering.cleanuri.api.Canonizer;
+
+import net.jcip.annotations.ThreadSafe;
+import ru.lanwen.verbalregex.VerbalExpression;
 
 /**
  * Canonizer for the Reichelt online catalogue.
@@ -27,6 +28,9 @@ import com.penguineering.cleanuri.api.Canonizer;
  */
 @ThreadSafe
 public class ReicheltCanonizer implements Canonizer {
+	static final VerbalExpression artidRegex = VerbalExpression.regex().startOfLine().then("http").anything()
+			.then("://www.reichelt.de/").anything().then("-p").capture().anything().endCapture().then(".html")
+			.anything().endOfLine().build();
 
 	public ReicheltCanonizer() {
 	}
@@ -38,7 +42,7 @@ public class ReicheltCanonizer implements Canonizer {
 
 		final String authority = uri.getAuthority();
 
-		return authority != null && authority.endsWith("reichelt.de");
+		return authority != null && authority.endsWith("reichelt.de") && artidRegex.test(uri.toASCIIString());
 	}
 
 	@Override
@@ -51,26 +55,13 @@ public class ReicheltCanonizer implements Canonizer {
 		return URI.create(ReicheltSite.PREFIX + ART_id);
 	}
 
-	private static final String ART_ID = "ARTICLE=";
-
 	private String getArticleID(URI uri) {
-		String query = uri.getQuery();
+		if (!isSuitable(uri))
+			throw new IllegalArgumentException("URI is not suitable for this extractor!");
 
-		// extract the ARTICLE from the query
-		final int ART_idx = query.indexOf(ART_ID);
-		final int COL_idx = query.indexOf(";", ART_idx);
-		final int AMP_idx = query.indexOf("&", ART_idx);
+		final String artid = artidRegex.getText(uri.toASCIIString(), 1);
 
-		final int idx;
-		// take the rest of the string if there are no more delimiters
-		if (COL_idx == -1 && AMP_idx == -1)
-			idx = query.length();
-		else
-			// take index of AMP or COL, whichever exists and comes first
-			idx = Math.min(COL_idx == -1 ? query.length() : COL_idx, AMP_idx == -1 ? query.length() : AMP_idx);
-
-		return query.substring(ART_idx + ART_ID.length(), idx);
-
+		return artid;
 	}
 
 }
