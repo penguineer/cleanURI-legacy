@@ -26,7 +26,7 @@ public class ReicheltSiteTestFrame {
 
 	public static void main(String args[]) throws ExtractorException {
 		final URI uri = URI
-				.create("http://www.reichelt.de/Interne-Festplatten-8-89cm-3-5-SATA/WD20EFRX/3/index.html?;ACTION=3;LA=3;ARTICLE=122928;GROUPID=720;SID=13UL35O38AAAIAAF0s96896ddf17472f1c88daef7e4f67873a9d0");
+				.create("https://www.reichelt.de/i-o-port-expander-with-interrupt-16-bit-soic-28-mcp-23016-i-so-p89337.html?r=1");
 
 		final Site site = ReicheltSite.getInstance();
 
