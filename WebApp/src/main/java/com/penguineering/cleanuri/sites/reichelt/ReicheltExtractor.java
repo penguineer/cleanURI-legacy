@@ -40,12 +40,10 @@ import ru.lanwen.verbalregex.VerbalExpression;
  * 
  */
 public class ReicheltExtractor implements Extractor {
-	static final VerbalExpression idRegex = VerbalExpression.regex().startOfLine().then("<title>").capture().anything()
-			.endCapture().then(":").anything().then(" bei reichelt elektronik</title>").endOfLine().build();
-
-	static final VerbalExpression descRegex = VerbalExpression.regex().startOfLine().then("<title>").anything()
-			.then(":").capture().anything().endCapture().then(" bei reichelt elektronik</title>").endOfLine().build();
-
+	static final VerbalExpression twitterRegex = VerbalExpression.regex().startOfLine()
+			.then("<meta name=\"twitter:title\" content=\"").capture().anything().endCapture().then(" - ").capture()
+			.anything().endCapture().then("\" />").endOfLine().build();
+			
 	public ReicheltExtractor() {
 
 	}
@@ -94,15 +92,12 @@ public class ReicheltExtractor implements Extractor {
 
 				String line;
 				while ((line = reader.readLine()) != null) {
-					// extract the id
-					if (idRegex.test(line)) {
-						final String id = idRegex.getText(line, 1);
+					// extract ID and description from Twitter title line
+					if (twitterRegex.test(line)) {
+						final String id = twitterRegex.getText(line, 1);
 						meta.put(Metakey.ID, html2oUTF8(id).trim());
-					}
 
-					// extract the description
-					if (descRegex.test(line)) {
-						final String desc = descRegex.getText(line, 1);
+						final String desc = twitterRegex.getText(line, 2);
 						meta.put(Metakey.NAME, html2oUTF8(desc).trim());
 					}
 				}
