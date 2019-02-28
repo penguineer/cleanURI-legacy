@@ -21,6 +21,7 @@ import com.penguineering.cleanuri.api.Decorator;
 import com.penguineering.cleanuri.api.ExtractorException;
 import com.penguineering.cleanuri.api.Metakey;
 import com.penguineering.cleanuri.decorators.DokuwikiDecorator;
+import com.penguineering.cleanuri.decorators.JsonDecorator;
 
 public class ReicheltSiteTestFrame {
 
@@ -34,6 +35,9 @@ public class ReicheltSiteTestFrame {
 		Map<Metakey, String> meta = site.getExtractor().extractMetadata(href);
 
 		Decorator decorator = new DokuwikiDecorator();
+		System.out.println(decorator.decorate(href, meta));
+		
+		decorator = new JsonDecorator();
 		System.out.println(decorator.decorate(href, meta));
 	}
 }
