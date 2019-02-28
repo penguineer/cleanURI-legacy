@@ -37,17 +37,17 @@ public class JsonDecorator implements Decorator {
 		StringBuilder result = new StringBuilder();
 		result.append("{");
 		// URI
-		result.append("'uri': '");
+		result.append("\"uri\": \"");
 		result.append(uri);
-		result.append("',\n");
+		result.append("\",\n");
 		// ID
-		result.append(" 'id': '");
+		result.append(" \"id\": \"");
 		result.append(meta.get(Metakey.ID));
-		result.append("',\n");
+		result.append("\",\n");
 		//NAME		
-		result.append(" 'name': '");
+		result.append(" \"name\": \"");
 		result.append(meta.get(Metakey.NAME));
-		result.append("'");
+		result.append("\"");
 		result.append("}");
 
 		return result.toString();
