@@ -37,6 +37,7 @@ import com.penguineering.cleanuri.decorators.JsonDecorator;
 import com.penguineering.cleanuri.decorators.PlainDecorator;
 import com.penguineering.cleanuri.sites.amazon.AmazonSite;
 import com.penguineering.cleanuri.sites.reichelt.ReicheltSite;
+import com.penguineering.cleanuri.sites.ebay.EbaySite;
 
 @ThreadSafe
 public class CleanURIServlet extends HttpServlet {
@@ -53,6 +54,9 @@ public class CleanURIServlet extends HttpServlet {
 
 		final Site reichelt = ReicheltSite.getInstance();
 		sites.put(reichelt.getLabel(), reichelt);
+
+		final Site ebay = EbaySite.getInstance();
+		sites.put(ebay.getLabel(), ebay);
 
 		decorators = new HashMap<String, Decorator>();
 		final Decorator plain = new PlainDecorator();
