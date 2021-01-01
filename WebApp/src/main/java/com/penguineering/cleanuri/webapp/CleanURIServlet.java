@@ -35,6 +35,7 @@ import com.penguineering.cleanuri.api.Metakey;
 import com.penguineering.cleanuri.decorators.DokuwikiDecorator;
 import com.penguineering.cleanuri.decorators.JsonDecorator;
 import com.penguineering.cleanuri.decorators.PlainDecorator;
+import com.penguineering.cleanuri.decorators.MarkdownDecorator;
 import com.penguineering.cleanuri.sites.amazon.AmazonSite;
 import com.penguineering.cleanuri.sites.reichelt.ReicheltSite;
 
@@ -61,6 +62,8 @@ public class CleanURIServlet extends HttpServlet {
 		decorators.put(dokuwiki.getLabel(), dokuwiki);
 		final Decorator json = new JsonDecorator();
 		decorators.put(json.getLabel(), json);
+		final Decorator markdown = new MarkdownDecorator();
+		decorators.put(markdown.getLabel(), markdown);
 	}
 
 	@Override
