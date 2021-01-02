@@ -41,6 +41,8 @@ public class MarkdownDecorator implements Decorator {
 		// result.append(meta.get(Metakey.ID));
 		// result.append("-");
 		result.append(meta.get(Metakey.NAME));
+		result.append(" - ");
+		result.append(meta.get(Metakey.ID));
 		result.append("](");
 		result.append(uri);
 		result.append(")");
