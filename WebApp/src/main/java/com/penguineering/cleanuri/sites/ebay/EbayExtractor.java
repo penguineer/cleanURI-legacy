@@ -44,7 +44,7 @@ public class EbayExtractor implements Extractor {
 			.then("://www.ebay.de/").capture().anything().endCapture().endOfLine().build();
 
 	static final VerbalExpression descRegex = VerbalExpression.regex().startOfLine().anything()
-			.then("</span>").capture().anything().endCapture().then("</h1>").anything().endOfLine().build();
+			.then("<title>").capture().anything().endCapture().then("   | eBay</title>").anything().endOfLine().build();
 	public EbayExtractor() {
 
 	}
