@@ -109,13 +109,4 @@ public class EbayExtractor implements Extractor {
 		return meta;
 	}
 
-	private static String html2oUTF8(String html) throws UnsupportedEncodingException {
-		final String iso = StringEscapeUtils.unescapeHtml4(html);
-
-		final String encoding = "ISO-8859-1"; // according to page header
-		// final String encoding = "UTF-8";
-
-		final byte[] b = iso.getBytes(encoding);
-		return new String(b, encoding);
-	}
 }
