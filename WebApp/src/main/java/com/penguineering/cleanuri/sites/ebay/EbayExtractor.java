@@ -41,7 +41,7 @@ import ru.lanwen.verbalregex.VerbalExpression;
  */
 public class EbayExtractor implements Extractor {
 	static final VerbalExpression idRegex = VerbalExpression.regex().startOfLine().then("http").anything()
-			.then("://www.ebay.de/").anything().then("/").capture().anything().endCapture().then("?").anything().endOfLine().build();
+			.then("://www.ebay.de/").capture().anything().endCapture().endOfLine().build();
 
 	static final VerbalExpression descRegex = VerbalExpression.regex().startOfLine().anything()
 			.then("</span>").capture().anything().endCapture().then("</h1>").anything().endOfLine().build();
