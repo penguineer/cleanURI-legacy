@@ -35,17 +35,13 @@ public class MarkdownDecorator implements Decorator {
 			throw new NullPointerException("Arguments must not be null!");
 
 		StringBuilder result = new StringBuilder();
-// [I'm an inline-style link](https://www.google.com)
 
 		result.append("[");
-		// result.append(meta.get(Metakey.ID));
-		// result.append("-");
-		result.append(meta.get(Metakey.NAME));
-		result.append(" - ");
 		result.append(meta.get(Metakey.ID));
 		result.append("](");
 		result.append(uri);
-		result.append(")");
+		result.append(") - ");
+		result.append(meta.get(Metakey.NAME));
 
 		return result.toString();
 	}
