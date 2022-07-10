@@ -3,10 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.penguineering</groupId>
 	<artifactId>cleanuri-webapp</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
-	
+	<!-- The project version is set by jgitver! -->
+	<version>0</version>
 	<packaging>war</packaging>
+
 	<name>CleanURI WebApp</name>
+	<url>https://github.com/penguineer/cleanURI</url>
 
 	<licenses>
 	    <license>
@@ -18,22 +20,14 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-		<!-- skip tests by default - FIXME -->
-		<skipTests>true</skipTests>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<jdk.version>17</jdk.version>
+		<release.version>17</release.version>
 	</properties>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -48,10 +42,10 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.9</version>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.3.2</version>
 				<configuration>
-					<skipTests>${skipTests}</skipTests>
+					<webappDirectory>src/main/webapp</webappDirectory>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -62,7 +56,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.13.1</version>
+			<version>4.13.2</version>
 			<scope>test</scope>
 			<optional>true</optional>
 		</dependency>
@@ -70,7 +64,7 @@
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>1.1.1</version>
+			<version>1.2</version>
 			<type>jar</type>
 			<scope>compile</scope>
 			<optional>true</optional>
@@ -94,13 +88,13 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.1</version>
+			<version>3.12.0</version>
 		</dependency>
 		
 		<dependency>
 		    <groupId>ru.lanwen.verbalregex</groupId>
 		    <artifactId>java-verbal-expressions</artifactId>
-		    <version>1.5</version>
+		    <version>1.8</version>
 		</dependency>		
 	</dependencies>
 
