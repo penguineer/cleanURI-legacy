@@ -2,9 +2,9 @@ name: Maven Tests
 
 on: 
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -21,4 +21,6 @@ jobs:
           cache: 'maven'
       
       - name: Run Tests with Maven
-        run: mvn --batch-mode --update-snapshots clean test
+        run: |
+          cd WebApp
+          mvn --batch-mode --update-snapshots clean test

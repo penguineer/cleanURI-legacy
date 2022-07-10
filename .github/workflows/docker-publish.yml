@@ -3,12 +3,12 @@ name: Docker Publish
 on:
   push:
     branches:
-      - 'main'
+      - 'master'
     tags:
       - 'v*'
   pull_request:
     branches:
-      - 'main'
+      - 'master'
 
 jobs:
   build:
@@ -46,7 +46,9 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots clean package
+        run: |
+          cd WebApp
+          mvn --batch-mode --update-snapshots clean package
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
