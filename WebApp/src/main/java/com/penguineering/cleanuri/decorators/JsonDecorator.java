@@ -18,6 +18,7 @@ import java.util.Map;
 
 import com.penguineering.cleanuri.api.Decorator;
 import com.penguineering.cleanuri.api.Metakey;
+import org.json.JSONObject;
 
 public class JsonDecorator implements Decorator {
 
@@ -34,23 +35,11 @@ public class JsonDecorator implements Decorator {
 		if (uri == null || meta == null)
 			throw new NullPointerException("Arguments must not be null!");
 
-		StringBuilder result = new StringBuilder();
-		result.append("{");
-		// URI
-		result.append("\"uri\": \"");
-		result.append(uri);
-		result.append("\",\n");
-		// ID
-		result.append(" \"id\": \"");
-		result.append(meta.get(Metakey.ID));
-		result.append("\",\n");
-		//NAME		
-		result.append(" \"name\": \"");
-		result.append(meta.get(Metakey.NAME));
-		result.append("\"");
-		result.append("}");
-
-		return result.toString();
+		return new JSONObject(Map.of(
+				"uri", uri,
+				"id", meta.get(Metakey.ID),
+				"name", meta.get(Metakey.NAME)
+		)).toString(4);
 	}
 
 }
