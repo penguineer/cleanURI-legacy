@@ -27,7 +27,7 @@ public class EbaySiteTestFrame {
 
 	public static void main(String args[]) throws ExtractorException {
 		final URI uri = URI
-				.create("https://www.ebay.de/itm/Raspberry-Pi-4-Computer-Modell-B-4GB-RAM-Light-Starter-Kit-weis-Bundle/113903558395?epid=7035054216&hash=item1a852e5efb:g:gtAAAOSwVztf7lwx");
+				.create("https://www.ebay.de/itm/312236629511?");
 
 		final Site site = EbaySite.getInstance();
 
