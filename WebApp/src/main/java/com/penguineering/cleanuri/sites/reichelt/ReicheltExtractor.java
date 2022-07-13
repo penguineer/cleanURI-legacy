@@ -14,16 +14,14 @@
 package com.penguineering.cleanuri.sites.reichelt;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -31,7 +29,10 @@ import com.penguineering.cleanuri.api.Extractor;
 import com.penguineering.cleanuri.api.ExtractorException;
 import com.penguineering.cleanuri.api.Metakey;
 
-import ru.lanwen.verbalregex.VerbalExpression;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.Elements;
 
 /**
  * Meta-data extractor for Reichelt catalog data.
@@ -40,10 +41,6 @@ import ru.lanwen.verbalregex.VerbalExpression;
  * 
  */
 public class ReicheltExtractor implements Extractor {
-	static final VerbalExpression twitterRegex = VerbalExpression.regex().startOfLine()
-			.then("<meta name=\"twitter:title\" content=\"").capture().anything().endCapture().then(" - ").capture()
-			.anything().endCapture().then("\" />").endOfLine().build();
-			
 	public ReicheltExtractor() {
 
 	}
@@ -81,36 +78,24 @@ public class ReicheltExtractor implements Extractor {
 			throw new IllegalArgumentException("Could not convert provided URL to https scheme!", e);
 		}
 
-		Map<Metakey, String> meta = new HashMap<Metakey, String>();
+		Map<Metakey, String> meta = new HashMap<>();
 
 		try {
-			final URLConnection con = url.openConnection();
+			final Document doc = Jsoup.connect(url.toExternalForm()).get();
 
-			LineNumberReader reader = null;
-			try {
-				reader = new LineNumberReader(new InputStreamReader(con.getInputStream()));
+			final Elements articleHeader = doc.select("#av_articleheader h2");
+			final Optional<TextNode> articleId = articleHeader.textNodes().stream().findFirst();
+			if (articleId.isPresent())
+				meta.put(Metakey.ID, html2oUTF8(articleId.get().text()).trim());
 
-				String line;
-				while ((line = reader.readLine()) != null) {
-					// extract ID and description from Twitter title line
-					if (twitterRegex.test(line)) {
-						final String id = twitterRegex.getText(line, 1);
-						meta.put(Metakey.ID, html2oUTF8(id).trim());
-
-						final String desc = twitterRegex.getText(line, 2);
-						meta.put(Metakey.NAME, html2oUTF8(desc).trim());
-					}
-				}
-
-				return meta;
-			} finally {
-				if (reader != null)
-					reader.close();
-			}
+			final Elements articleName = articleHeader.select("span[itemprop=\"name\"]");
+			if (articleName.hasText())
+				meta.put(Metakey.NAME, html2oUTF8(articleName.text()).trim());
 		} catch (IOException e) {
 			throw new ExtractorException("I/O exception during extraction: " + e.getMessage(), e, uri);
 		}
 
+		return meta;
 	}
 
 	private static String html2oUTF8(String html) throws UnsupportedEncodingException {

@@ -21,12 +21,13 @@ import com.penguineering.cleanuri.api.Decorator;
 import com.penguineering.cleanuri.api.ExtractorException;
 import com.penguineering.cleanuri.api.Metakey;
 import com.penguineering.cleanuri.decorators.DokuwikiDecorator;
+import com.penguineering.cleanuri.decorators.JsonDecorator;
 
 public class AmazonSiteTestFrame {
 
 	public static void main(String args[]) throws ExtractorException {
 		final URI uri = URI.create(
-				"https://www.amazon.de/Aihasd-SNOFF-Wireless-Controlled-Switch/dp/B01I1A5W3A/ref=sr_1_1?ie=UTF8&qid=1491047244&sr=8-1&keywords=Aihasd+SNOFF+WiFi+Wireless+APP+Controlled+Smart+Switch+For+Smart+Home");
+				"https://www.amazon.de/dp/B089N623TP/?psc=1&ref_=lv_ov_lig_dp_it");
 
 		final Site site = AmazonSite.getInstance();
 
@@ -36,6 +37,9 @@ public class AmazonSiteTestFrame {
 		System.out.println(href);
 
 		Decorator decorator = new DokuwikiDecorator();
+		System.out.println(decorator.decorate(href, meta));
+
+		decorator = new JsonDecorator();
 		System.out.println(decorator.decorate(href, meta));
 	}
 }

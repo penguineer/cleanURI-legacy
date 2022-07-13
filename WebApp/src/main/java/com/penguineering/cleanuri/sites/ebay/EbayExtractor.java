@@ -14,23 +14,20 @@
 package com.penguineering.cleanuri.sites.ebay;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.penguineering.cleanuri.api.Extractor;
 import com.penguineering.cleanuri.api.ExtractorException;
 import com.penguineering.cleanuri.api.Metakey;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import ru.lanwen.verbalregex.VerbalExpression;
 
 /**
@@ -43,8 +40,8 @@ public class EbayExtractor implements Extractor {
 	static final VerbalExpression idRegex = VerbalExpression.regex().startOfLine().then("http").anything()
 			.then("://www.ebay.de/itm/").capture().anything().endCapture().endOfLine().build();
 
-	static final VerbalExpression descRegex = VerbalExpression.regex().startOfLine().anything()
-			.then("<title>").capture().anything().endCapture().then("| eBay</title>").anything().endOfLine().build();
+	static final VerbalExpression descRegex = VerbalExpression.regex().startOfLine()
+			.capture().anything().endCapture().then("| eBay").anything().endOfLine().build();
 	public EbayExtractor() {
 
 	}
@@ -77,35 +74,24 @@ public class EbayExtractor implements Extractor {
 			throw new IllegalArgumentException("Could not convert provided URL to https scheme!", e);
 		}
 
-		Map<Metakey, String> meta = new HashMap<Metakey, String>();
+		Map<Metakey, String> meta = new HashMap<>();
 
 		final String id = idRegex.getText(uriStr, 1);
 		meta.put(Metakey.ID, id.trim());
 
 		try {
-			final URLConnection con = url.openConnection();
+			final Document doc = Jsoup.connect(url.toExternalForm()).get();
 
-			LineNumberReader reader = null;
-			try {
-				reader = new LineNumberReader(new InputStreamReader(con.getInputStream()));
-
-				String line;
-				while ((line = reader.readLine()) != null) {
-					// extract the description
-					if (descRegex.test(line)) {
-						final String desc = descRegex.getText(line, 1);
-						meta.put(Metakey.NAME, desc.trim());
-					}
-				}
-
-			} finally {
-				if (reader != null)
-					reader.close();
+			final Elements title = doc.select("title");
+			final String titleText = title.text();
+			if (descRegex.test(titleText)) {
+				final String desc = descRegex.getText(titleText, 1);
+				meta.put(Metakey.NAME, desc.trim());
 			}
 		} catch (IOException e) {
 			throw new ExtractorException("I/O exception during extraction: " + e.getMessage(), e, uri);
 		}
-		
+
 		return meta;
 	}
 
