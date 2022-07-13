@@ -13,13 +13,10 @@
  */package com.penguineering.cleanuri.sites.amazon;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +25,9 @@ import com.penguineering.cleanuri.api.ExtractorException;
 import com.penguineering.cleanuri.api.Metakey;
 
 import net.jcip.annotations.ThreadSafe;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import ru.lanwen.verbalregex.VerbalExpression;
 
 @ThreadSafe
@@ -35,8 +35,8 @@ public class AmazonExtractor implements Extractor {
 	static final VerbalExpression idRegex = VerbalExpression.regex().startOfLine().anything().then("/dp/").capture()
 			.anything().endCapture().endOfLine().build();
 
-	static final VerbalExpression descRegex = VerbalExpression.regex().startOfLine().then("<title>").capture()
-			.anything().endCapture().then(": Amazon.de").anything().then("</title>").endOfLine().build();
+	static final VerbalExpression descRegex = VerbalExpression.regex().startOfLine()
+			.capture().anything().endCapture().then(": Amazon.de").anything().endOfLine().build();
 
 	public AmazonExtractor() {
 	}
@@ -56,7 +56,7 @@ public class AmazonExtractor implements Extractor {
 		/*
 		 * Create a URL from the provided URI.
 		 * 
-		 * Amazon made everybode use HTTPS now, unfortunately this is encoded in
+		 * Amazon made everybody use HTTPS now, unfortunately this is encoded in
 		 * the URI. HTTP still works, but will result in a 301 response, which
 		 * we resolve beforehand by changing the http scheme in the URI to
 		 * https.
@@ -74,30 +74,19 @@ public class AmazonExtractor implements Extractor {
 			throw new IllegalArgumentException("Could not convert provided URL to https scheme!", e);
 		}
 
-		Map<Metakey, String> meta = new HashMap<Metakey, String>();
+		Map<Metakey, String> meta = new HashMap<>();
 
 		final String id = idRegex.getText(uriStr, 1);
 		meta.put(Metakey.ID, id.trim());
 
 		try {
-			final URLConnection con = url.openConnection();
+			final Document doc = Jsoup.connect(url.toExternalForm()).get();
 
-			LineNumberReader reader = null;
-			try {
-				reader = new LineNumberReader(new InputStreamReader(con.getInputStream()));
-
-				String line;
-				while ((line = reader.readLine()) != null) {
-					// extract the description
-					if (descRegex.test(line)) {
-						final String desc = descRegex.getText(line, 1);
-						meta.put(Metakey.NAME, desc.trim());
-					}
-				}
-
-			} finally {
-				if (reader != null)
-					reader.close();
+			final Elements title = doc.select("title");
+			final String titleText = title.text();
+			if (descRegex.test(titleText)) {
+				final String desc = descRegex.getText(titleText, 1);
+				meta.put(Metakey.NAME, desc.trim());
 			}
 		} catch (IOException e) {
 			throw new ExtractorException("I/O exception during extraction: " + e.getMessage(), e, uri);
