@@ -30,13 +30,9 @@ The container exposes port 8080 for access to the HTTP endpoint.
 
 ## Contributing
 
-PRs are welcome!
+This project is end-of-life and has been replaced by [cleanURI](https://github.com/penguineer/cleanURI).
 
-If possible, please stick to the following guidelines:
-
-* Keep PRs reasonably small and their scope limited to a feature or module within the code.
-* If a large change is planned, it is best to open a feature request issue first, then link subsequent PRs to this issue, so that the PRs move the code towards the intended feature.
-
+Please check that project and the linked sub-projects if you want to use or contribute to this tool!
 
 ## License
 
