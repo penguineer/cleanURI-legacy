@@ -22,35 +22,6 @@ docker run --rm -it -p 8080:8080 mrtux/clean_uri:latest
 
 The container exposes port 8080 for access to the HTTP endpoint.
 
-### Development
-Version numbers are determined with [jgitver](https://jgitver.github.io/).
-Please check your [IDE settings](https://jgitver.github.io/#_ides_usage) to avoid problems, as there are still some unresolved issues.
-If you encounter a project version `0` there is an issue with the jgitver generator.
-
-## Build
-
-The build is split into two stages:
-1. Packaging with [Maven](https://maven.apache.org/)
-2. Building the Docker container
-
-This means that the [Dockerfile](Dockerfile) expects one (and only one) JAR file in the target directory.
-Build as follows:
-
-```bash
-cd WebApp
-mvn --batch-mode --update-snapshots clean package
-cd ..
-docker build .
-```
-
-Why not do everything with maven and [JIB](https://github.com/GoogleContainerTools/jib)?
-So far I have not been able to integrate JIB with the mechanism that determined which tags should be build (e.g. only
-build *latest* when on main branch). After 5h of trying I settled with this solution:
-* [Maven](https://maven.apache.org/) is sufficiently reliable to create reproducible builds, and we can make use of the build cache.
-* The [Dockerfile](Dockerfile) allows for the usual integration into image build and push.
-
-The whole process is coded in the [docker-publish workflow](.github/workflows/docker-publish.yml) and only needs to be
-executed manually for local builds.
 
 ## Maintainers
 
