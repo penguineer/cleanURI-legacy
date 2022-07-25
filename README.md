@@ -1,10 +1,14 @@
-# URI cleaner (cleanURI)
+# cleanURI - legacy
 
-> Clean URI generation toolkit.
+> Clean URI generation toolkit. (legacy code)
 
 Trim a URI to a "canonical" (or minimal) state so that it can serve as an easy pointer to a product or entity without unwanted meta-information (such as trackers).
 
 Extended decorators also add meta information form the referred page and allow specific representations, e.g. Markdown or [DokuWiki](https://www.dokuwiki.org/).
+
+**This is the legacy implementation of the URI cleaner!**
+
+Please refer to the [cleanURI main repository](https://github.com/penguineer/cleanURI) for the current implementation.
 
 
 ## Deployment
